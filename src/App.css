@@ -1,9 +1,209 @@
-.app-container {
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.dark {
+  --bg-primary: #0d0f14;
+  --bg-secondary: #151820;
+  --bg-card: #1c1f28;
+  --bg-input: #1c1f28;
+  --border: rgba(255,255,255,0.07);
+  --text-primary: #e8eaf0;
+  --text-secondary: #8b8fa8;
+  --accent: #6c63ff;
+  --accent-glow: rgba(108,99,255,0.3);
+  --bubble-user: linear-gradient(135deg, #6c63ff, #9c8fff);
+  --bubble-bot: #1c1f28;
+  --bubble-bot-border: rgba(255,255,255,0.07);
+  --bubble-user-text: #fff;
+  --bubble-bot-text: #e8eaf0;
+  --scrollbar: rgba(255,255,255,0.08);
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.light {
+  --bg-primary: #f0f2f8;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-input: #f5f6fa;
+  --border: rgba(0,0,0,0.08);
+  --text-primary: #1a1d2e;
+  --text-secondary: #6b6f8a;
+  --accent: #6c63ff;
+  --accent-glow: rgba(108,99,255,0.15);
+  --bubble-user: linear-gradient(135deg, #6c63ff, #9c8fff);
+  --bubble-bot: #ffffff;
+  --bubble-bot-border: rgba(0,0,0,0.08);
+  --bubble-user-text: #fff;
+  --bubble-bot-text: #1a1d2e;
+  --scrollbar: rgba(0,0,0,0.1);
+  --shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg-primary);
+  transition: background 0.3s ease;
+}
+
+/* ===== APP CONTAINER ===== */
+.app-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+.chat-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.bot-avatar {
+  width: 38px;
+  height: 38px;
+  background: var(--accent);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  position: relative;
+  box-shadow: 0 0 14px var(--accent-glow);
+  flex-shrink: 0;
+}
+
+.online-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.header-status {
+  font-size: 0.72rem;
+}
+
+.online-status { color: #22c55e; font-weight: 500; }
+.typing-status { color: var(--accent); font-weight: 500; }
+
+.dot-anim {
+  animation: dotBlink 1.2s infinite;
+}
+
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.theme-toggle {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 11px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ===== USER INFO ===== */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px 12px;
+  flex-shrink: 0;
+}
+
+.user-avatar { font-size: 1rem; }
+
+.user-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.logout-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Sora', sans-serif;
+  white-space: nowrap;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}

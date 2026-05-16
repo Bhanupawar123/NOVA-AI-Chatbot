@@ -1,0 +1,58 @@
+import { createContext, useContext, useState, useEffect } from 'react';
+
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('nova_token'));
+  const [loading, setLoading] = useState(true);
+
+  // App start pe check karo — token valid hai ya nahi
+  useEffect(() => {
+    async function checkAuth() {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setUser(data.user);
+        } else {
+          logout();
+        }
+      } catch {
+        logout();
+      } finally {
+        setLoading(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
+  function login(userData, userToken) {
+    setUser(userData);
+    setToken(userToken);
+    localStorage.setItem('nova_token', userToken);
+  }
+
+  function logout() {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('nova_token');
+    localStorage.removeItem('ai_chat_history');
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
+}

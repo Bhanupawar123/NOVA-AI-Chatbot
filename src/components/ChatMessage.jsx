@@ -1,38 +1,83 @@
-import RobotMessageProfile  from '../assets/robot.png';
-import  UserMessageProfile  from '../assets/user.png';
 import './ChatMessage.css'
 
-export function ChatMessage({ message, sender }) {
-        // const message = props.message;
-        // const sender = props.sender;
-        // const { message, sender } = props;
+// Simple markdown parser
+function parseMarkdown(text) {
+  // Code blocks ```code```
+  text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_, lang, code) => {
+    return `<pre class="code-block"><code>${escapeHtml(code.trim())}</code></pre>`;
+  });
 
-        /*
-        if (sender === 'robot') {
-          return (
-            <div>
-              <img src="robot.png" width="50" />
-              {message}
-            </div>
-          );
-        }
-        */
+  // Inline code `code`
+  text = text.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
 
-        return (
-          <div className={
-            sender === 'user'
-              ? 'chat-message-user'
-              : 'chat-message-robot'
-          }>
-            {sender === 'robot' && (
-              <img src={RobotMessageProfile} className="chat-message-profile" />
-            )}
-            <div className="chat-message-text">
-              {message}
-            </div>
-            {sender === 'user' && (
-              <img src={UserMessageProfile} className="chat-message-profile" />
-            )}
-          </div>
-        );
-      }
+  // Bold **text**
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  // Italic *text*
+  text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // Bullet points * item or - item
+  text = text.replace(/^[\*\-] (.+)/gm, '<li>$1</li>');
+  text = text.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+
+  // Numbered list 1. item
+  text = text.replace(/^\d+\. (.+)/gm, '<li>$1</li>');
+
+  // ### Heading
+  text = text.replace(/^### (.+)/gm, '<h3 class="md-h3">$1</h3>');
+  text = text.replace(/^## (.+)/gm, '<h2 class="md-h2">$1</h2>');
+  text = text.replace(/^# (.+)/gm, '<h1 class="md-h1">$1</h1>');
+
+  // Line breaks
+  text = text.replace(/\n\n/g, '<br/><br/>');
+  text = text.replace(/\n/g, '<br/>');
+
+  return text;
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+export function ChatMessage({ message, sender, index }) {
+  const time = new Date().toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const isBot = sender === 'robot';
+
+  return (
+    <div
+      className={`chat-message ${isBot ? 'chat-message-robot' : 'chat-message-user'}`}
+      style={{ animationDelay: `${Math.min(index * 0.05, 0.3)}s` }}
+    >
+      {isBot && (
+        <div className="avatar bot-msg-avatar">🤖</div>
+      )}
+
+      <div className="message-content">
+        <div className={`chat-message-text ${isBot ? 'bot-bubble' : 'user-bubble'}`}>
+          {isBot ? (
+            <div
+              className="markdown-body"
+              dangerouslySetInnerHTML={{ __html: parseMarkdown(message) }}
+            />
+          ) : (
+            message
+          )}
+        </div>
+        <span className={`message-time ${isBot ? 'time-left' : 'time-right'}`}>
+          {time}
+        </span>
+      </div>
+
+      {!isBot && (
+        <div className="avatar user-msg-avatar">👤</div>
+      )}
+    </div>
+  );
+}
