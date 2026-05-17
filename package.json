@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install-server": "npm install --prefix server",
+    "start": "npm --prefix server start"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.2",

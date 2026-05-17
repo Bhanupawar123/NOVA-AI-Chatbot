@@ -7,20 +7,16 @@ import './App.css'
 
 function App() {
   const { user, logout, loading } = useAuth();
-  const getGreeting = () => {
+  const [chatMessages, setChatMessages] = useState(() => {
     const hour = new Date().getHours();
-    if (hour < 12) return `Good morning, ${user?.name}! ☀️`;
-    if (hour < 17) return `Good afternoon, ${user?.name}! 👋`;
-    return `Good evening, ${user?.name}! 🌙`;
-  };
-
-  const [chatMessages, setChatMessages] = useState([
-    {
-      message: `${getGreeting()} I am NOVA, your personal AI assistant. I remember our conversations and learn your preferences. How can I help you today? 🌟`,
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    const emoji = hour < 12 ? '☀️' : hour < 17 ? '👋' : '🌙';
+    return [{
+      message: `${greeting}! I am NOVA, your personal AI assistant. I remember our conversations and learn your preferences. How can I help you today? 🌟`,
       sender: 'robot',
       id: 'id1'
-    }
-  ]);
+    }];
+  });
   const [darkMode, setDarkMode] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
 
