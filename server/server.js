@@ -9,13 +9,23 @@ dotenv.config();
 
 const app = express();
 
-// CORS fix — Vercel frontend allow karo
+// CORS fix — allow frontend and local network access
+const allowedOrigins = [
+  'https://nova-ai-chatbot-flax.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000'
+];
 app.use(cors({
-  origin: [
-    'https://nova-ai-chatbot-flax.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:3000'
-  ],
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (origin.startsWith('http://192.168.') || origin.startsWith('http://10.') || origin.startsWith('http://172.')) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 

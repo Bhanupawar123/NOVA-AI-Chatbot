@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../api';
 import './AuthPage.css';
 
 export function AuthPage() {
@@ -19,8 +20,8 @@ export function AuthPage() {
     setError('');
 
     const url = isLogin
-      ? 'http://localhost:5000/api/auth/login'
-      : 'http://localhost:5000/api/auth/register';
+      ? `${API_URL}/api/auth/login`
+      : `${API_URL}/api/auth/register`;
 
     const body = isLogin
       ? { email: form.email, password: form.password }

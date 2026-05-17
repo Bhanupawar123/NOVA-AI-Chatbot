@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import './ChatInput.css'
 
+import { API_URL } from '../api';
+
 const STORAGE_KEY = 'ai_chat_history';
-const API_URL = 'https://nova-ai-chatbot-442l.onrender.com';
 
 export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
   const [inputText, setInputText] = useState('');
