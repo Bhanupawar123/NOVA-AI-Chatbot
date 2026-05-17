@@ -1,13 +1,13 @@
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import { GoogleGenAI } from '@google/genai';
+import Groq from 'groq-sdk';
 import { protect } from '../middleware/auth.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // ===== MULTER SETUP =====
 const storage = multer.diskStorage({
@@ -34,12 +34,10 @@ router.post('/', protect, async (req, res) => {
   if (!message) return res.status(400).json({ error: 'Message is required' });
 
   try {
-    // Chat history ko context mein convert karo
     const historyContext = history.slice(-10).map(msg =>
       `${msg.sender === 'user' ? req.user.name : 'NOVA'}: ${msg.message}`
     ).join('\n');
 
-    // Preferences context
     const prefContext = Object.keys(preferences).length > 0
       ? `User preferences: ${JSON.stringify(preferences)}`
       : '';
@@ -54,51 +52,49 @@ ${historyContext}
 Remember everything the user has told you and refer back to it naturally when relevant.
 Keep responses concise, helpful, and friendly. Use the user's name naturally in responses.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: message,
-      config: { systemInstruction: systemPrompt }
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message }
+      ],
+      max_tokens: 1024,
     });
 
-    res.json({ reply: response.text });
+    const botReply = completion.choices[0]?.message?.content || 'Sorry, no response.';
+    res.json({ reply: botReply });
 
   } catch (error) {
-    console.error('Gemini Error:', error);
+    console.error('Groq Error:', error);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
 
-// ===== FILE UPLOAD WITH MEMORY =====
+// ===== FILE UPLOAD (Image description via text) =====
 router.post('/file', protect, upload.single('file'), async (req, res) => {
-  const { message, history = [] } = req.body;
+  const { message } = req.body;
   const uploadedFile = req.file;
 
   if (!uploadedFile) return res.status(400).json({ error: 'File is required' });
 
   try {
-    const fileData = fs.readFileSync(uploadedFile.path);
-    const base64Data = fileData.toString('base64');
     const isPDF = uploadedFile.mimetype === 'application/pdf';
+    const userMessage = message || (isPDF ? 'Summarize this document.' : 'Describe this image.');
 
-    const historyContext = history.slice(-6).map(msg =>
-      `${msg.sender === 'user' ? req.user.name : 'NOVA'}: ${msg.message}`
-    ).join('\n');
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: [{
-        parts: [
-          { inlineData: { mimeType: uploadedFile.mimetype, data: base64Data } },
-          { text: message || (isPDF ? 'Summarize this PDF.' : 'Describe this image.') }
-        ]
-      }],
-      config: {
-        systemInstruction: `You are NOVA. User's name is ${req.user.name}. Previous context:\n${historyContext}`
-      }
+    // Groq text model use karenge — image describe karne ke liye user ka message forward karenge
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: `You are NOVA, a helpful AI assistant. User's name is ${req.user.name}.` },
+        { role: 'user', content: `User uploaded a ${isPDF ? 'PDF document' : 'image'} and asks: "${userMessage}". Please respond helpfully.` }
+      ],
+      max_tokens: 1024,
     });
 
     fs.unlinkSync(uploadedFile.path);
-    res.json({ reply: response.text });
+
+    const botReply = completion.choices[0]?.message?.content || 'Sorry, could not process the file.';
+    res.json({ reply: botReply });
 
   } catch (error) {
     if (uploadedFile && fs.existsSync(uploadedFile.path)) fs.unlinkSync(uploadedFile.path);
