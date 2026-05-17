@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './ChatInput.css'
 
 const STORAGE_KEY = 'ai_chat_history';
+const API_URL = 'https://nova-ai-chatbot-442l.onrender.com';
 
 export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
   const [inputText, setInputText] = useState('');
@@ -81,12 +82,9 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
     const file = e.target.files[0];
     if (!file) return;
     setSelectedImage(file);
-
     if (file.type === 'application/pdf') {
-      // PDF ka preview text show karo
       setImagePreview('pdf');
     } else {
-      // Image ka preview show karo
       const reader = new FileReader();
       reader.onload = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
@@ -111,13 +109,13 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
         const formData = new FormData();
         formData.append('file', selectedImage);
         formData.append('message', userMessage);
-        response = await fetch('http://localhost:5000/api/chat/file', {
+        response = await fetch(`${API_URL}/api/chat/file`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData
         });
       } else {
-        response = await fetch('http://localhost:5000/api/chat', {
+        response = await fetch(`${API_URL}/api/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ 
@@ -152,9 +150,7 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
             <img src={imagePreview} alt="Selected" className="image-preview" />
           )}
           <span className="image-label">
-            {imagePreview === 'pdf'
-              ? `📄 ${selectedImage?.name}`
-              : '🖼️ Image ready to send'}
+            {imagePreview === 'pdf' ? `📄 ${selectedImage?.name}` : '🖼️ Image ready to send'}
           </span>
           <button className="remove-image" onClick={removeImage}>✕</button>
         </div>

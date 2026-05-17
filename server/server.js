@@ -8,7 +8,17 @@ import chatRoutes from './routes/chat.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS fix — Vercel frontend allow karo
+app.use(cors({
+  origin: [
+    'https://nova-ai-chatbot-flax.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // MongoDB connect
