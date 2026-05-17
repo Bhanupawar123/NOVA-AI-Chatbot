@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
       }
     }
     checkAuth();
-  }, []);
+  }, [token]);
 
   function login(userData, userToken) {
     setUser(userData);
@@ -53,6 +53,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

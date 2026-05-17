@@ -10,7 +10,6 @@ function App() {
   const [chatMessages, setChatMessages] = useState(() => {
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    const emoji = hour < 12 ? '☀️' : hour < 17 ? '👋' : '🌙';
     return [{
       message: `${greeting}! I am NOVA, your personal AI assistant. I remember our conversations and learn your preferences. How can I help you today? 🌟`,
       sender: 'robot',

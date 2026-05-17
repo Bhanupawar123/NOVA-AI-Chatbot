@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
+// eslint-disable-next-line no-undef
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // ===== MULTER SETUP =====

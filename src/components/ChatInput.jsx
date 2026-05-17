@@ -22,11 +22,13 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) { const parsed = JSON.parse(saved); if (parsed.length > 0) setChatMessages(parsed); }
-    } catch (e) {}
-  }, []);
+    // eslint-disable-next-line no-unused-vars
+    } catch (e) { /* empty */ }
+  }, [setChatMessages]);
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatMessages)); } catch (e) {}
+    // eslint-disable-next-line no-unused-vars
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatMessages)); } catch (e) { /* empty */ }
   }, [chatMessages]);
 
   function createRecognition() {
@@ -54,6 +56,7 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
       if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); setIsSpeaking(false); }
       const recognition = createRecognition();
       recognitionRef.current = recognition;
+      // eslint-disable-next-line no-unused-vars
       setTimeout(() => { try { recognition.start(); } catch (e) { setIsListening(false); } }, 150);
     }
   }
@@ -135,10 +138,7 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
 
   function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 
-  function clearHistory() {
-    setChatMessages([{ message: 'Hi! I am NOVA, your AI assistant. How can I help you today? 🌟', sender: 'robot', id: crypto.randomUUID() }]);
-    localStorage.removeItem(STORAGE_KEY); window.speechSynthesis.cancel(); setIsSpeaking(false); removeImage();
-  }
+  
 
   return (
     <div className="chat-input-wrapper">
