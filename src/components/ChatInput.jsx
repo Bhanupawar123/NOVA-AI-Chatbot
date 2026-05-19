@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import './ChatInput.css'
-
 import { API_URL } from '../api';
-
-const STORAGE_KEY = 'ai_chat_history';
 
 export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
   const [inputText, setInputText] = useState('');
@@ -19,18 +16,21 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
   const token = localStorage.getItem('nova_token');
   const preferences = JSON.parse(localStorage.getItem('nova_preferences') || '{}');
 
+  // Har user ki alag history — token se unique key
+  const STORAGE_KEY = `ai_chat_history_${token}`;
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) { const parsed = JSON.parse(saved); if (parsed.length > 0) setChatMessages(parsed); }
     // eslint-disable-next-line no-unused-vars
     } catch (e) { /* empty */ }
-  }, [setChatMessages]);
+  }, [setChatMessages, STORAGE_KEY]);
 
   useEffect(() => {
     // eslint-disable-next-line no-unused-vars
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(chatMessages)); } catch (e) { /* empty */ }
-  }, [chatMessages]);
+  }, [chatMessages, STORAGE_KEY]);
 
   function createRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -138,8 +138,6 @@ export function ChatInput({ chatMessages, setChatMessages, setIsTyping }) {
   }
 
   function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-
-  
 
   return (
     <div className="chat-input-wrapper">

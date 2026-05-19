@@ -45,8 +45,9 @@ export function AuthProvider({ children }) {
     setToken(null);
     localStorage.removeItem('nova_token');
     localStorage.removeItem('ai_chat_history');
+    localStorage.removeItem('nova_preferences');
   }
-
+  
   return (
     <AuthContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
