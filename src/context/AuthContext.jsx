@@ -43,11 +43,17 @@ export function AuthProvider({ children }) {
   function logout() {
     setUser(null);
     setToken(null);
+    // Clear all user specific chat histories
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('ai_chat_history_')) {
+        localStorage.removeItem(key);
+      }
+    });
     localStorage.removeItem('nova_token');
     localStorage.removeItem('ai_chat_history');
     localStorage.removeItem('nova_preferences');
   }
-  
+
   return (
     <AuthContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
